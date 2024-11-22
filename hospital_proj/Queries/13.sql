@@ -1,10 +1,16 @@
-SELECT DISTINCT m.Medication_Name, m.Dosage
-FROM medications m
-JOIN medicationorders mor ON m.Medication_ID = mor.Medication_ID
-JOIN prescriptions p ON mor.Prescription_ID = mor.Prescription_ID
-JOIN patients pt ON pt.Patient_ID = p.Patient_ID
-JOIN admissions a ON pt.Patient_ID = a.Patient_ID
-JOIN Hospitals h ON a.Hospital_ID = h.Hospital_ID
-WHERE h.Location = 'TX'
-ORDER BY m.Dosage DESC
+WITH tx_doctors(Doctor_ID) as (
+  SELECT Doctor_ID
+  FROM doctors
+  JOIN hospitals USING(Hospital_ID)
+  WHERE hospitals.Location = "TX"
+)
+
+
+SELECT medications.Medication_Name, medications.Dosage
+FROM  medications 
+JOIN medicationorders USING(Medication_ID)
+JOIN prescriptions USING(Prescription_ID)
+WHERE prescriptions.Doctor_ID IN (SELECT * FROM tx_doctors)
+ORDER BY medications.Dosage DESC
 LIMIT 3;
+-- 
